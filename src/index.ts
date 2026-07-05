@@ -1,6 +1,6 @@
 import express from "express";
-import subjectRouter from "./routes/subjects";
 import cors from "cors";
+import subjectRouter from "./routes/subjects.js";
 const app = express();
 const PORT = 8000;
 
@@ -9,7 +9,7 @@ if (!process.env.FRONTEND_URL) {
 }
 
 app.use(cors({
-  origin:process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }))
