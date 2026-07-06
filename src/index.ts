@@ -1,8 +1,10 @@
+import AgentAPI from "apminsight";
+AgentAPI.config()
+
 import express from "express";
 import cors from "cors";
 import subjectRouter from "./routes/subjects.js";
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "./lib/auth.js";
+import securityMiddleWare from "./middleware/security.js";
 const app = express();
 const PORT = 8000;
 
@@ -15,11 +17,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }))
-
-app.all('/api/auth/*splat', toNodeHandler(auth))
-
 app.use(express.json());
 
+app.use(securityMiddleWare)
 app.use('/api/subjects', subjectRouter);
 
 app.get('/', (req, res) => {
