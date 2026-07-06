@@ -1,20 +1,19 @@
-import arcjet, { shield, detectBot, slidingWindow } from "@arcjet/node";
+import arcjet from "@arcjet/node";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const key = process.env.ARCJET_KEY;
 
-// Allow local/dev startup without configuring Arcjet.
-// In production you should set ARCJET_KEY.
-const aj = key
-  ? arcjet({
-      key,
-      rules: [
-        // Add default rules here if needed, or configure dynamically in middleware
-      ],
-    })
-  : null;
+if (!key) {
+  throw new Error(
+    "ARCJET_KEY environment variable is missing or blank. Please set it in your .env file."
+  );
+}
+
+const aj = arcjet({
+  key,
+  rules: [],
+});
 
 export default aj;
-
