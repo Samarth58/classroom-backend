@@ -6,7 +6,7 @@ import cors from "cors";
 import subjectRouter from "./routes/subjects.js";
 import securityMiddleWare from "./middleware/security.js";
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 if (!process.env.FRONTEND_URL) {
   throw new Error("FRONTEND_URL environment variable is not set");
