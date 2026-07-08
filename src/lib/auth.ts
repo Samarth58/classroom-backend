@@ -2,10 +2,19 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/index.js"; // your drizzle instance
 import *  as schema from '../db/schema/auth.js'
+
+const normalizeOrigin = (value: string) => value.replace(/\/+$/, "");
+const frontendOrigins = [process.env.FRONTEND_URL, process.env.ALLOWED_ORIGINS]
+    .filter((value): value is string => Boolean(value))
+    .flatMap((value) => value.split(","))
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .map(normalizeOrigin);
+
 export const auth = betterAuth({
     baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:8000',
     secret: process.env.BETTER_AUTH_SECRET!,
-    trustedOrigins: [process.env.FRONTEND_URL!],
+    trustedOrigins: frontendOrigins,
     database: drizzleAdapter(db, {
         provider: "pg",
         schema,// or "mysql", "sqlite"

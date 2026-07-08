@@ -7,12 +7,23 @@ import classRouter from "./routes/classes.js";
 
 const app = express();
 
-if (!process.env.FRONTEND_URL) {
+const frontendUrl = process.env.FRONTEND_URL?.trim();
+
+if (!frontendUrl) {
   throw new Error("FRONTEND_URL environment variable is not set");
 }
 
+const normalizeOrigin = (value: string) => value.replace(/\/+$/, "");
 const isDev = process.env.NODE_ENV !== "production";
-const allowedOrigins = [process.env.FRONTEND_URL];
+const allowedOrigins = [normalizeOrigin(frontendUrl)];
+
+const envAllowedOrigins = (process.env.ALLOWED_ORIGINS ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .map(normalizeOrigin);
+
+allowedOrigins.push(...envAllowedOrigins);
 
 if (isDev) {
   allowedOrigins.push("http://localhost:5173");
@@ -26,14 +37,17 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      const normalizedOrigin = normalizeOrigin(origin);
+
+      if (allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
 
       return callback(new Error(`Not allowed by CORS: ${origin}`));
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
