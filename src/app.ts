@@ -26,6 +26,7 @@ const envAllowedOrigins = (process.env.ALLOWED_ORIGINS ?? "")
 allowedOrigins.push(...envAllowedOrigins);
 
 if (isDev) {
+  allowedOrigins.push("https://classroom-frontend-three-psi.vercel.app");
   allowedOrigins.push("http://localhost:5173");
   allowedOrigins.push("http://localhost:3000");
   allowedOrigins.push("http://127.0.0.1:5173");
