@@ -64,25 +64,6 @@ app.use(
   })
 );
 
-app.options("*", cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-
-    const normalizedOrigin = normalizeOrigin(origin);
-
-    if (
-      allowedOrigins.includes(normalizedOrigin) ||
-      isVercelOrigin(normalizedOrigin) ||
-      isLocalOrigin(normalizedOrigin)
-    ) {
-      return callback(null, true);
-    }
-
-    return callback(null, false);
-  },
-  credentials: true,
-}));
-
 app.use(express.json());
 
 app.use(securityMiddleWare);
