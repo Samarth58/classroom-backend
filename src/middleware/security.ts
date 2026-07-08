@@ -15,7 +15,7 @@ declare module 'express-serve-static-core' {
 }
 
 const securityMiddleWare = async (req: Request, res: Response, next: NextFunction) => {
-    if (process.env.NODE_ENV === "test" || !aj) {
+    if (process.env.NODE_ENV === "test" || process.env.NODE_ENV !== "production" || !aj) {
         return next();
     }
 
