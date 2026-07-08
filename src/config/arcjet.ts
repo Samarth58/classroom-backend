@@ -3,17 +3,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const key = process.env.ARCJET_KEY;
+const key = process.env.ARCJET_KEY?.trim();
 
-if (!key) {
-  throw new Error(
-    "ARCJET_KEY environment variable is missing or blank. Please set it in your .env file."
-  );
-}
-
-const aj = arcjet({
-  key,
-  rules: [],
-});
+const aj = key
+  ? arcjet({
+      key,
+      rules: [],
+    })
+  : null;
 
 export default aj;

@@ -9,13 +9,20 @@ const app = express();
 
 const frontendUrl = process.env.FRONTEND_URL?.trim();
 
-if (!frontendUrl) {
-  throw new Error("FRONTEND_URL environment variable is not set");
-}
-
 const normalizeOrigin = (value: string) => value.replace(/\/+$/, "");
+const isVercelOrigin = (value: string) => /\.vercel\.app$/i.test(value);
+const isLocalOrigin = (value: string) =>
+  value.startsWith("http://localhost") ||
+  value.startsWith("http://127.0.0.1") ||
+  value.startsWith("https://localhost") ||
+  value.startsWith("https://127.0.0.1");
+
 const isDev = process.env.NODE_ENV !== "production";
-const allowedOrigins = [normalizeOrigin(frontendUrl)];
+const allowedOrigins = [] as string[];
+
+if (frontendUrl) {
+  allowedOrigins.push(normalizeOrigin(frontendUrl));
+}
 
 const envAllowedOrigins = (process.env.ALLOWED_ORIGINS ?? "")
   .split(",")
@@ -40,17 +47,41 @@ app.use(
 
       const normalizedOrigin = normalizeOrigin(origin);
 
-      if (allowedOrigins.includes(normalizedOrigin)) {
+      if (
+        allowedOrigins.includes(normalizedOrigin) ||
+        isVercelOrigin(normalizedOrigin) ||
+        isLocalOrigin(normalizedOrigin)
+      ) {
         return callback(null, true);
       }
 
-      return callback(new Error(`Not allowed by CORS: ${origin}`));
+      return callback(null, false);
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    optionsSuccessStatus: 200,
   })
 );
+
+app.options("*", cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    if (
+      allowedOrigins.includes(normalizedOrigin) ||
+      isVercelOrigin(normalizedOrigin) ||
+      isLocalOrigin(normalizedOrigin)
+    ) {
+      return callback(null, true);
+    }
+
+    return callback(null, false);
+  },
+  credentials: true,
+}));
 
 app.use(express.json());
 
